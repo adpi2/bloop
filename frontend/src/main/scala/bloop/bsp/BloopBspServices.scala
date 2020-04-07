@@ -698,7 +698,7 @@ final class BloopBspServices(
             (id, project) <- projects.toList
             dag = state.build.getDagFor(project)
             fullClasspath = project
-              .fullClasspath(dag, state.client)
+              .fullRuntimeClasspath(dag, state.client)
               .map(_.toBspUri.toString)
             environmentVariables = state.commonOptions.env.toMap
             workingDirectory = project.workingDirectory.toString
@@ -1100,7 +1100,7 @@ final class BloopBspServices(
         projects.iterator.map {
           case (target, project) =>
             val dag = state.build.getDagFor(project)
-            val fullClasspath = project.fullClasspath(dag, state.client)
+            val fullClasspath = project.fullCompileClasspath(dag, state.client)
             val classpath =
               fullClasspath.map(e => uris.getOrElseUpdate(e.underlying, bsp.Uri(e.toBspUri))).toList
             val classesDir =

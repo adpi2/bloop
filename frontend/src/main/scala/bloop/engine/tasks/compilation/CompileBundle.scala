@@ -172,7 +172,7 @@ object CompileBundle {
       val compileDependenciesData = {
         tracer.traceVerbose("dependency classpath") { _ =>
           CompileDependenciesData.compute(
-            project.rawClasspath.toArray,
+            project.rawCompileClasspath.toArray,
             dependentProducts
           )
         }

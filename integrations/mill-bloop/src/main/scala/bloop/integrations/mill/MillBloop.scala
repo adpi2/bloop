@@ -98,6 +98,7 @@ object Bloop extends ExternalModule {
     val tags = module match { case _: TestModule => List(Tag.Test); case _ => List(Tag.Library) }
 
     val project = T.task {
+      val fullClasspath = classpath().map(_.toNIO).toList
       Config.Project(
         name = name(module),
         directory = module.millSourcePath.toNIO,
@@ -106,7 +107,8 @@ object Bloop extends ExternalModule {
         sourcesGlobs = None,
         sourceRoots = None,
         dependencies = module.moduleDeps.map(name).toList,
-        classpath = classpath().map(_.toNIO).toList,
+        compileClasspath = fullClasspath,
+        runtimeClasspath = fullClasspath,
         out = out(module).toNIO,
         classesDir = classes(module).toNIO,
         resources = Some(resources()),

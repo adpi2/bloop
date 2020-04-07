@@ -60,12 +60,15 @@ final case class TestProject(
 
   def rewriteProject(
       changeScala: Config.Scala => Config.Scala = identity[Config.Scala],
-      changeClasspath: List[Path] => List[Path] = identity[List[Path]]
+      changeCompileClasspath: List[Path] => List[Path] = identity[List[Path]],
+      changeRuntimeClasspath: List[Path] => List[Path] = identity[List[Path]]
   ): TestProject = {
     val newScala = changeScala(config.scala.get)
-    val newClasspath = changeClasspath(config.classpath)
+    val newCompileClasspath = changeCompileClasspath(config.compileClasspath)
+    val newRuntimeClasspath = changeRuntimeClasspath(config.runtimeClasspath)
     val newConfig = config.copy(
-      classpath = newClasspath,
+      compileClasspath = newCompileClasspath,
+      runtimeClasspath = newRuntimeClasspath,
       scala = Some(newScala)
     )
     new TestProject(newConfig, this.deps)
@@ -86,6 +89,7 @@ abstract class BaseTestProject {
       name: String,
       sources: List[String],
       directDependencies: List[TestProject] = Nil,
+      strictDependencies: Boolean = false,
       enableTests: Boolean = false,
       scalacOptions: List[String] = Nil,
       scalaOrg: Option[String] = None,
@@ -116,7 +120,7 @@ abstract class BaseTestProject {
       mkScalaInstance(finalScalaOrg, finalScalaCompiler, scalaVersion, jars.toList, NoopLogger)
 
     val allJars = instance.allJars.map(AbsolutePath.apply)
-    val depsTargets = directDependencies.flatMap(d => classpathDeps(d))
+    val depsTargets = if (strictDependencies) directDependencies.map(p => AbsolutePath(p.config.classesDir)) else directDependencies.flatMap(d => classpathDeps(d))
     val classpath = (depsTargets ++ allJars ++ jars).map(_.underlying)
     val javaConfig = jvmConfig.getOrElse(JdkConfig.toConfig(JdkConfig.default))
     val setup = Config.CompileSetup.empty.copy(order = order)
@@ -149,6 +153,7 @@ abstract class BaseTestProject {
       else Some(sourcesGlobs),
       None,
       directDependencies.map(_.config.name),
+      classpath,
       classpath,
       outDir.underlying,
       classes.underlying,

@@ -200,11 +200,8 @@ class BloopConverter(parameters: BloopParameters) {
       val classesDir = getClassesDir(targetDir, project, sourceSet)
       val outDir = getOutDir(targetDir, project, sourceSet)
 
-      // tag runtime items to the end of the classpath until Bloop has separate compile and runtime paths
-      val classpath: List[Path] =
-        (strictProjectDependencies.map(_.classesDir) ++ compileClasspathItems ++ runtimeClasspathItems ++
-          compileClasspathFilesAsPaths ++ runtimeClasspathFilesAsPaths ++
-          nonArtifactCompileClassPathFiles ++ nonArtifactRuntimeClassPathFiles).distinct
+      val compileClasspath: List[Path] = (compileClasspathItems ++ compileClasspathFilesAsPaths ++ nonArtifactCompileClassPathFiles).distinct
+      val runtimeClasspath: List[Path] = (runtimeClasspathItems ++ runtimeClasspathFilesAsPaths ++ nonArtifactRuntimeClassPathFiles).distinct
 
       val modules = (nonProjectDependencies.map(artifactToConfigModule(_, project)) ++
         additionalArtifacts.map(artifactToConfigModule(_, project))).distinct
@@ -224,7 +221,8 @@ class BloopConverter(parameters: BloopParameters) {
           sourcesGlobs = None,
           sourceRoots = None,
           dependencies = allDependencies,
-          classpath = classpath,
+          compileClasspath = compileClasspath,
+          runtimeClasspath = runtimeClasspath,
           out = outDir,
           classesDir = classesDir,
           resources = if (resources.isEmpty) None else Some(resources),

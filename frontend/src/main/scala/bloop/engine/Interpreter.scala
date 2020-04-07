@@ -297,7 +297,7 @@ object Interpreter {
                     scalaVersion
                   )
 
-                  val classpath = project.fullClasspath(dag, state.client)
+                  val classpath = project.fullRuntimeClasspath(dag, state.client)
                   val coursierClasspathArgs =
                     classpath.flatMap(elem => Seq("--extra-jars", elem.syntax))
 

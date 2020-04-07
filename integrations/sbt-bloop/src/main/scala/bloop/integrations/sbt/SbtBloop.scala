@@ -1022,7 +1022,7 @@ object BloopDefaults {
 
             val sbt = None // Written by `postGenerate` instead
             val project = Config.Project(projectName, baseDirectory, Option(buildBaseDirectory.toPath), sources, None, None, dependenciesAndAggregates,
-              classpath, out, classesDir, resources, Some(`scala`), Some(java), sbt, Some(testOptions), Some(platform), resolution,
+              classpath, classpath, out, classesDir, resources, Some(`scala`), Some(java), sbt, Some(testOptions), Some(platform), resolution,
               Some(tags))
             Config.File(Config.File.LatestVersion, project)
           }

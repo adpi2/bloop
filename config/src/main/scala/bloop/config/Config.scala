@@ -236,7 +236,8 @@ object Config {
       sourcesGlobs: Option[List[SourcesGlobs]],
       sourceRoots: Option[List[Path]],
       dependencies: List[String],
-      classpath: List[Path],
+      compileClasspath: List[Path],
+      runtimeClasspath: List[Path],
       out: Path,
       classesDir: Path,
       resources: Option[List[Path]],
@@ -251,7 +252,7 @@ object Config {
 
   object Project {
     // FORMAT: OFF
-    private[bloop] val empty: Project = Project("", emptyPath, None, List(), None, None, List(), List(),  emptyPath, emptyPath, None, None, None, None, None, None, None, None)
+    private[bloop] val empty: Project = Project("", emptyPath, None, List(), None, None, List(), List(), List(),  emptyPath, emptyPath, None, None, None, None, None, None, None, None)
     // FORMAT: ON
 
     def analysisFileName(projectName: String) = s"$projectName-analysis.bin"
@@ -295,6 +296,7 @@ object Config {
         None,
         None,
         List("dummy-2"),
+        List(scalaLibraryJar),
         List(scalaLibraryJar),
         outDir,
         classesDir,

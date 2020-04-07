@@ -36,7 +36,8 @@ final case class Project(
     workspaceDirectory: Option[AbsolutePath],
     dependencies: List[String],
     scalaInstance: Option[ScalaInstance],
-    rawClasspath: List[AbsolutePath],
+    rawCompileClasspath: List[AbsolutePath],
+    rawRuntimeClasspath: List[AbsolutePath],
     resources: List[AbsolutePath],
     compileSetup: Config.CompileSetup,
     genericClassesDir: AbsolutePath,
@@ -128,7 +129,7 @@ final case class Project(
     resources.iterator.filter(_.exists).toArray
   }
 
-  def fullClasspath(dag: Dag[Project], client: ClientInfo): Array[AbsolutePath] = {
+  private def fullClasspath(dag: Dag[Project], client: ClientInfo, rawClasspath: List[AbsolutePath]): Array[AbsolutePath] = {
     val addedResources = new mutable.HashSet[AbsolutePath]()
     val cp = (this.genericClassesDir :: rawClasspath).toBuffer
 
@@ -151,7 +152,14 @@ final case class Project(
     }
 
     cp.toArray
+
   }
+
+  def fullCompileClasspath(dag: Dag[Project], client: ClientInfo): Array[AbsolutePath] =
+    fullClasspath(dag, client, rawCompileClasspath)
+
+  def fullRuntimeClasspath(dag: Dag[Project], client: ClientInfo): Array[AbsolutePath] =
+    fullClasspath(dag, client, rawRuntimeClasspath)
 
   /**
    * Defines a project-specific path under which Bloop will create all bsp
@@ -247,7 +255,8 @@ object Project {
       project.workspaceDir.map(AbsolutePath.apply),
       project.dependencies,
       instance,
-      project.classpath.map(AbsolutePath.apply),
+      project.compileClasspath.map(AbsolutePath.apply),
+      project.runtimeClasspath.map(AbsolutePath.apply),
       resources,
       setup,
       AbsolutePath(project.classesDir),
